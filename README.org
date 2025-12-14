@@ -44,6 +44,17 @@ Jest minor mode binds compilation-related commands such as =compile-command= and
   :hook (js2-mode . jest-minor-mode))
 #+end_src
 
+* Customization
+** jest-transform-arguments
+By default, jest.el transforms command-line arguments before passing them to jest
+(e.g., converting ~--color~ to ~--color=yes~ or ~--color=no~). 
+
+If you prefer to pass arguments to jest without transformation, you can disable this:
+
+#+begin_src el
+(setq jest-transform-arguments nil)
+#+end_src
+
 * Jest Popup
 #+BEGIN_SRC
 Switches
