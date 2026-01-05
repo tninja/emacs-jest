@@ -127,14 +127,6 @@ When non-nil only ‘test_foo()’ will match, and nothing else."
                  (const :tag "Save current buffer" save-current)
                  (const :tag "Ignore" nil)))
 
-(defcustom jest-transform-arguments t
-  "Whether to transform arguments before passing them to jest.
-
-When t (the default), arguments are transformed using `jest--transform-arguments'.
-When nil, arguments are passed to jest without transformation."
-  :group 'jest
-  :type 'boolean)
-
 (defvar jest--history nil
   "History for jest invocations.")
 
@@ -292,8 +284,7 @@ With a prefix ARG, allow editing."
   "Run jest for the given arguments."
   (let ((popup-arguments args)
 	command)
-    (when jest-transform-arguments
-      (setq args (jest--transform-arguments args)))
+    (setq args (jest--transform-arguments args))
     (when (and file (file-name-absolute-p file))
       (setq file (file-truename file)))
 
