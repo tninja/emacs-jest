@@ -295,7 +295,7 @@ With a prefix ARG, allow editing."
     (when jest-transform-arguments
       (setq args (jest--transform-arguments args)))
     (when (and file (file-name-absolute-p file))
-      (setq file (jest--relative-file-name file)))
+      (setq file (file-truename file)))
 
     (when file
       (setq args (-snoc args (jest--shell-quote file))))
@@ -331,8 +331,10 @@ With a prefix ARG, allow editing."
 (cl-defun jest--run-as-comint (&key command popup-arguments)
   "Run a jest comint session for COMMAND."
   (let* ((buffer (jest--get-buffer))
-         (process (get-buffer-process buffer)))
+         (process (get-buffer-process buffer))
+         (project-root default-directory))
     (with-current-buffer buffer
+      (setq default-directory project-root)
       (when (comint-check-proc buffer)
         (unless (or compilation-always-kill
                     (yes-or-no-p "Kill running jest process?"))
@@ -447,16 +449,19 @@ If FILE is not found in DIRECTORY, the parent of DIRECTORY will be searched."
 
 (defun jest--find-package-json (file)
   "Find the package.json associated with a given file"
-  (jest--file-search-upward (file-name-directory file) "package.json"))
+  (let ((dir (if (and file (file-directory-p file))
+                 (file-name-as-directory file)
+               (file-name-directory file))))
+    (jest--file-search-upward dir "package.json")))
 
 (defun jest--project-name ()
   "Find the project name."
-  (gethash "name" (jest--read-package-json buffer-file-name)))
+  (gethash "name" (jest--read-package-json (or buffer-file-name default-directory))))
 
 (defun jest--project-root ()
   "Find the project root directory."
   (interactive)
-  (file-name-directory (jest--find-package-json buffer-file-name)))
+  (file-name-directory (jest--find-package-json (or buffer-file-name default-directory))))
 
 (defun jest--relative-file-name (file)
   "Make FILE relative to the project root."
